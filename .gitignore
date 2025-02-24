@@ -3,10 +3,14 @@ cache/
 out/
 
 # Ignores development broadcast logs
-/broadcast/
+broadcast/
 
 # Docs
 docs/
 
 # Dotenv file
-.env*
+.env
+
+# Node modules
+server/node_modules/
+node_modules/

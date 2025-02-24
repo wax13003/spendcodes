@@ -19,6 +19,7 @@ contract MerchantPayment {
         usdcToken = IERC20(_usdcAddress);
     }
 
+<<<<<<< HEAD
     function payOrder(uint256 orderId, string calldata metaData) external {
         uint256 amount = usdcToken.allowance(msg.sender, address(this));
         require(amount > 0, "Payment must be greater than zero");
@@ -50,8 +51,38 @@ contract MerchantPayment {
                 bytesToHexString(abi.encodeWithSignature("payOrder(uint256,string)", orderId, metaData))
             )
         );
+=======
+    function generateTransferURI(uint256 amount, uint256 orderId, string calldata metaData) public view returns (string memory) {
+        bytes memory data = abi.encode(orderId, metaData);
+        return string(abi.encodePacked(
+            "ethereum:",
+            addressToString(address(usdcToken)),
+            "@11155111/transfer?address=",
+            addressToString(address(this)),
+            "&uint256=",
+            uintToString(amount),
+            "&data=",
+            bytesToHexString(data)
+        ));
+>>>>>>> 52d3559f (monitor)
     }
 
+		function processPayment(uint256 orderId, uint256 amount, string calldata metaData) external {
+				require(amount > 0, "Payment amount must be greater than zero");
+				require(usdcToken.balanceOf(address(this)) >= amount, "Insufficient USDC balance in contract");
+
+				uint256 fee = (amount * feePercentage) / 100;
+				uint256 merchantAmount = amount - fee;
+
+				require(fee < amount, "Fee exceeds payment amount");
+				
+				require(usdcToken.transferFrom(msg.sender, address(this), amount), "Transfer to contract failed");
+				require(usdcToken.transfer(owner, fee), "Transfer of fee failed");
+				require(usdcToken.transfer(merchant, merchantAmount), "Transfer to merchant failed");
+
+				emit OrderPaid(orderId, msg.sender, amount, fee, metaData);
+		}
+    
     function updateFeePercentage(uint256 _newFeePercentage) external {
         require(msg.sender == owner, "Only owner can update fee percentage");
         require(_newFeePercentage <= 100, "Fee percentage must be <= 100");
