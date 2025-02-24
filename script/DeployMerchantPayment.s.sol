@@ -13,12 +13,8 @@ contract DeployMerchantPayment is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        MerchantPayment merchantPayment = new MerchantPayment(
-            owner,
-            merchant,
-            usdcAddress
-        );
-        
+        MerchantPayment merchantPayment = new MerchantPayment(owner, merchant, usdcAddress);
+
         require(address(merchantPayment) != address(0), "Deployment failed");
 
         console.log("MerchantPayment deployed at:", address(merchantPayment));

@@ -10,11 +10,7 @@ contract MerchantPayment {
     IERC20 public usdcToken;
 
     event OrderPaid(
-        uint256 indexed orderId,
-        address indexed customer,
-        uint256 totalAmount,
-        uint256 fee,
-        string metaData
+        uint256 indexed orderId, address indexed customer, uint256 totalAmount, uint256 fee, string metaData
     );
 
     constructor(address _owner, address _merchant, address _usdcAddress) {
@@ -36,18 +32,24 @@ contract MerchantPayment {
         emit OrderPaid(orderId, msg.sender, amount, fee, metaData);
     }
 
-    function generateERC681URI(uint256 orderId, uint256 amount, string calldata metaData) public view returns (string memory) {
-        return string(abi.encodePacked(
-            "ethereum:",
-            addressToString(address(usdcToken)),
-            "@11155111", // Sepolia testnet chain ID
-            "/transfer?address=",
-            addressToString(address(this)),
-            "&uint256=",
-            uintToString(amount),
-            "&data=",
-            bytesToHexString(abi.encodeWithSignature("payOrder(uint256,string)", orderId, metaData))
-        ));
+    function generateERC681URI(uint256 orderId, uint256 amount, string calldata metaData)
+        public
+        view
+        returns (string memory)
+    {
+        return string(
+            abi.encodePacked(
+                "ethereum:",
+                addressToString(address(usdcToken)),
+                "@11155111", // Sepolia testnet chain ID
+                "/transfer?address=",
+                addressToString(address(this)),
+                "&uint256=",
+                uintToString(amount),
+                "&data=",
+                bytesToHexString(abi.encodeWithSignature("payOrder(uint256,string)", orderId, metaData))
+            )
+        );
     }
 
     function updateFeePercentage(uint256 _newFeePercentage) external {
@@ -77,11 +79,11 @@ contract MerchantPayment {
         bytes32 value = bytes32(uint256(uint160(_addr)));
         bytes memory alphabet = "0123456789abcdef";
         bytes memory str = new bytes(42);
-        str[0] = '0';
-        str[1] = 'x';
+        str[0] = "0";
+        str[1] = "x";
         for (uint256 i = 0; i < 20; i++) {
-            str[2+i*2] = alphabet[uint8(value[i + 12] >> 4)];
-            str[3+i*2] = alphabet[uint8(value[i + 12] & 0x0f)];
+            str[2 + i * 2] = alphabet[uint8(value[i + 12] >> 4)];
+            str[3 + i * 2] = alphabet[uint8(value[i + 12] & 0x0f)];
         }
         return string(str);
     }
@@ -100,7 +102,7 @@ contract MerchantPayment {
         bytes memory bstr = new bytes(length);
         uint256 k = length;
         while (_i != 0) {
-            k = k-1;
+            k = k - 1;
             uint8 temp = (48 + uint8(_i - _i / 10 * 10));
             bytes1 b1 = bytes1(temp);
             bstr[k] = b1;
@@ -113,9 +115,9 @@ contract MerchantPayment {
     function bytesToHexString(bytes memory _bytes) internal pure returns (string memory) {
         bytes memory hexChars = "0123456789abcdef";
         bytes memory hexString = new bytes(_bytes.length * 2);
-        for (uint i = 0; i < _bytes.length; i++) {
-            hexString[i*2] = hexChars[uint8(_bytes[i] >> 4)];
-            hexString[i*2+1] = hexChars[uint8(_bytes[i] & 0x0f)];
+        for (uint256 i = 0; i < _bytes.length; i++) {
+            hexString[i * 2] = hexChars[uint8(_bytes[i] >> 4)];
+            hexString[i * 2 + 1] = hexChars[uint8(_bytes[i] & 0x0f)];
         }
         return string(hexString);
     }
